@@ -1,0 +1,93 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lt_postgres
+    environment:
+      POSTGRES_USER: linktracker
+      POSTGRES_PASSWORD: linktracker
+      POSTGRES_DB: linktracker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD_SHELL", "pg_isready -U linktracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: lt_redis
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lt_backend
+    environment:
+      DATABASE_URL: postgresql://linktracker:linktracker@postgres:5432/linktracker
+      REDIS_URL: redis://redis:6379/0
+      BASE_URL: http://localhost
+    networks:
+      - backend-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: lt_worker
+    environment:
+      DATABASE_URL: postgresql://linktracker:linktracker@postgres:5432/linktracker
+      REDIS_URL: redis://redis:6379/0
+    networks:
+      - backend-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container: lt_frontend
+    ports:
+      - "80:80"
+    networks:
+      - backend-net
+      - frontend-net
+    depends_on:
+      backend:
+        condtion: service_healthy
+
+networks:
+  frontend-net:
+    driver: bridge
+  backend-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+
