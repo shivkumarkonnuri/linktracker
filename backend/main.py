@@ -1,3 +1,4 @@
+import os
 import random
 import string
 from fastapi import FastAPI, Depends, HTTPException
@@ -50,7 +51,7 @@ async def shorten_url(
 
     return ShortenResponse(
         code=code,
-        short_url=f"http://localhost/s/{code}",
+        short_url=f"{os.getenv('BASE_URL', 'http://localhost')}/s/{code}",
         long_url=long_url,
     )
 

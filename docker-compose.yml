@@ -11,7 +11,7 @@ services:
     networks:
       - backend-net
     healthcheck:
-      test: ["CMD_SHELL", "pg_isready -U linktracker"]
+      test: ["CMD-SHELL", "pg_isready -U linktracker"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -44,7 +44,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\")'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -71,7 +71,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container: lt_frontend
+    container_name: lt_frontend
     ports:
       - "80:80"
     networks:
@@ -79,7 +79,7 @@ services:
       - frontend-net
     depends_on:
       backend:
-        condtion: service_healthy
+        condition: service_healthy
 
 networks:
   frontend-net:
@@ -89,5 +89,6 @@ networks:
 
 volumes:
   postgres_data:
+
 
 
