@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: linktracker-ingress-redirect
+  namespace: linktracker-uat
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /s/
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8000
