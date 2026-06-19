@@ -58,7 +58,9 @@ spec:
         - protocol: TCP
           port: 6379
 ---
-# 4. Allow ingress-nginx → backend
+# 4. Allow any → backend on port 8000
+# Note: namespaceSelector not enforceable for ingress-nginx because
+# the controller runs with hostNetwork: true — no pod identity for Calico to match
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -71,15 +73,12 @@ spec:
   policyTypes:
     - Ingress
   ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: ingress-nginx
-      ports:
+    - ports:
         - protocol: TCP
           port: 8000
 ---
-# 5. Allow ingress-nginx → frontend
+# 5. Allow any → frontend on port 80
+# Note: same hostNetwork limitation as above
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -92,15 +91,11 @@ spec:
   policyTypes:
     - Ingress
   ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: ingress-nginx
-      ports:
+    - ports:
         - protocol: TCP
           port: 80
 ---
-# 6. Allow backend egress -> postgres, redis, DNS (explicit kube-system + any namespace for DNS)
+# 6. Allow backend egress -> postgres, redis, DNS
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
