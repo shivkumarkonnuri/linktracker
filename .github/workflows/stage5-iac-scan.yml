@@ -1,0 +1,61 @@
+name: Stage 5 - Helm + IaC Security Scan
+
+on:
+  workflow_call:
+
+permissions:
+  security-events: write
+
+jobs:
+  iac-security-scan:
+    name: Helm + Terraform Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout infra repo
+        uses: actions/checkout@v4
+        with:
+          repository: shivkumarkonnuri/linktracker-infra
+          path: linktracker-infra
+
+      - name: Trivy - Scan Helm chart for misconfigurations
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: linktracker-infra/helm/linktracker
+          severity: CRITICAL,HIGH
+          exit-code: 1
+          format: sarif
+          output: trivy-helm.sarif
+
+      - name: Upload Helm scan to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-helm.sarif
+          category: trivy-helm-config
+
+      - name: Trivy - Scan terraform for misconfigurations
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: linktracker-infra/terraform
+          severity: CRITICAL,HIGH
+          exit-code: 0
+          format: sarif
+          output: trivy-terraform.sarif
+
+      - name: Upload Terraform scan to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-terraform.sarif
+          category: trivy-terraform-config
+
+      - name: Checkov - scan Terraform for CIS benchmark violations
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: linktracker-infra/terraform
+          framework: terraform
+          soft_fail: true
+          output_format: cli

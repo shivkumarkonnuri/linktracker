@@ -1,0 +1,79 @@
+name: Stage 3 - Image Security Scan
+
+on: 
+  workflow_call:
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+
+permissions:
+  security-events: write
+
+jobs:
+  image-security-scan:
+    name: Scan Docker Images for CVEs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download built images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp
+
+      - name: Load images into Docker
+        run: |
+          docker load --input /tmp/backend.tar
+          docker load --input /tmp/worker.tar
+          docker load --input /tmp/frontend.tar
+
+      - name: Trivy - scan backend image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: Image
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:backend
+          severity: CRITICAL,HIGH
+          exit-code: 1
+          format: sarif
+          output: trivy-backend.sarif
+
+      - name: Trivy - scan worker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: Image
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:worker
+          severity: CRITICAL,HIGH
+          exit-code: 1
+          format: sarif
+          output: trivy-worker.sarif
+
+      - name: Trivy - scan frontend image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: Image
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:frontend
+          severity: CRITICAL,HIGH
+          exit-code: 1
+          format: sarif
+          output: trivy-frontend.sarif
+
+      - name: Upload backend scan to Github Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-backend.sarif
+          category: trivy-backend-image
+
+      - name: Upload worker scan to Github Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-worker.sarif
+          category: trivy-worker-image
+
+      - name: Upload frotnend scan to Github Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-frontend.sarif
+          category: trivy-frontend-image

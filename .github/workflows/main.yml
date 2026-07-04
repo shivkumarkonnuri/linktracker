@@ -1,0 +1,54 @@
+name: Main Pipeline — LinkTracker CI/CD + DevSecOps
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  security-events: write
+
+jobs:
+  # ── Stage 1: Code Security Scan ──────────────────────────────
+  stage1-code-scan:
+    name: "Stage 1 — Code Security Scan"
+    uses: ./.github/workflows/stage1-code-scan.yml
+    secrets: inherit
+
+  # ── Stage 2: Build Images ────────────────────────────────────
+  stage2-build:
+    name: "Stage 2 — Build Images"
+    needs: stage1-code-scan
+    uses: ./.github/workflows/stage2-build.yml
+    secrets: inherit
+
+  # ── Stage 3: Image Security Scan ────────────────────────────
+  stage3-image-scan:
+    name: "Stage 3 — Image Security Scan"
+    needs: stage2-build
+    uses: ./.github/workflows/stage3-image-scan.yml
+    secrets: inherit
+
+  # ── Stage 4: Push Images ─────────────────────────────────────
+  stage4-push:
+    name: "Stage 4 — Push to Docker Hub"
+    needs: stage3-image-scan
+    uses: ./.github/workflows/stage4-image-push.yml
+    secrets: inherit
+
+  # ── Stage 5: IaC Security Scan ──────────────────────────────
+  stage5-iac-scan:
+    name: "Stage 5 — Helm + IaC Security Scan"
+    needs: stage4-push
+    uses: ./.github/workflows/stage5-iac-scan.yml
+    secrets: inherit
+
+  # ── Stage 6: Deploy to Prod (manual approval) ───────────────
+  stage6-deploy-prod:
+    name: "Stage 6 — Deploy to Production"
+    needs: stage5-iac-scan
+    uses: ./.github/workflows/stage6-deploy-prod.yml
+    secrets: inherit
