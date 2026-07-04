@@ -28,7 +28,7 @@ jobs:
           docker load --input /tmp/frontend.tar
 
       - name: Trivy - scan backend image
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: Image
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:backend
@@ -38,7 +38,7 @@ jobs:
           output: trivy-backend.sarif
 
       - name: Trivy - scan worker image
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: Image
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:worker
@@ -48,7 +48,7 @@ jobs:
           output: trivy-worker.sarif
 
       - name: Trivy - scan frontend image
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: Image
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:frontend
