@@ -1,4 +1,4 @@
-name: Stage 1 - Code Security Scan
+name: Stage 1 — Code Security Scan
 
 on:
   workflow_call:
@@ -18,22 +18,32 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Gitleaks - defect hardcoded secrets
+      - name: Gitleaks — detect hardcoded secrets
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Trivy - scan filesystem for dependency CVEs
+      - name: Trivy — scan filesystem for CVEs (fail on CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           scan-ref: .
           severity: CRITICAL,HIGH
           exit-code: 1
+          format: table
+
+      - name: Trivy — generate SARIF report for GitHub Security tab
+        uses: aquasecurity/trivy-action@master
+        if: always()
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: 0
           format: sarif
           output: trivy-fs-results.sarif
 
-      - name: Upload filesystem scan results to Github security tab
+      - name: Upload filesystem scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
