@@ -19,7 +19,7 @@ jobs:
           path: linktracker-infra
 
       - name: Trivy - Scan Helm chart for misconfigurations
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: linktracker-infra/helm/linktracker
@@ -36,7 +36,7 @@ jobs:
           category: trivy-helm-config
 
       - name: Trivy - Scan terraform for misconfigurations
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: linktracker-infra/terraform
