@@ -1,6 +1,6 @@
-name: Stage 3 - Image Security Scan
+name: Stage 3 — Image Security Scan
 
-on: 
+on:
   workflow_call:
     secrets:
       DOCKERHUB_USERNAME:
@@ -27,51 +27,84 @@ jobs:
           docker load --input /tmp/worker.tar
           docker load --input /tmp/frontend.tar
 
-      - name: Trivy - scan backend image
+      - name: Trivy — scan backend image (fail on CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          scan-type: Image
+          scan-type: image
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:backend
           severity: CRITICAL,HIGH
           exit-code: 1
+          format: table
+
+      - name: Trivy — generate backend SARIF report
+        uses: aquasecurity/trivy-action@v0.36.0
+        if: always()
+        with:
+          scan-type: image
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:backend
+          severity: CRITICAL,HIGH
+          exit-code: 0
           format: sarif
           output: trivy-backend.sarif
+          skip-setup-trivy: true
 
-      - name: Trivy - scan worker image
+      - name: Trivy — scan worker image (fail on CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          scan-type: Image
+          scan-type: image
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:worker
           severity: CRITICAL,HIGH
           exit-code: 1
+          format: table
+
+      - name: Trivy — generate worker SARIF report
+        uses: aquasecurity/trivy-action@v0.36.0
+        if: always()
+        with:
+          scan-type: image
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:worker
+          severity: CRITICAL,HIGH
+          exit-code: 0
           format: sarif
           output: trivy-worker.sarif
+          skip-setup-trivy: true
 
-      - name: Trivy - scan frontend image
+      - name: Trivy — scan frontend image (fail on CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          scan-type: Image
+          scan-type: image
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:frontend
           severity: CRITICAL,HIGH
           exit-code: 1
+          format: table
+
+      - name: Trivy — generate frontend SARIF report
+        uses: aquasecurity/trivy-action@v0.36.0
+        if: always()
+        with:
+          scan-type: image
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/linktracker:frontend
+          severity: CRITICAL,HIGH
+          exit-code: 0
           format: sarif
           output: trivy-frontend.sarif
+          skip-setup-trivy: true
 
-      - name: Upload backend scan to Github Security tab
+      - name: Upload backend scan to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: trivy-backend.sarif
           category: trivy-backend-image
 
-      - name: Upload worker scan to Github Security tab
+      - name: Upload worker scan to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: trivy-worker.sarif
           category: trivy-worker-image
 
-      - name: Upload frotnend scan to Github Security tab
+      - name: Upload frontend scan to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
