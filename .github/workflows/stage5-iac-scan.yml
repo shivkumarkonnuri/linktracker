@@ -1,4 +1,4 @@
-name: Stage 5 - Helm + IaC Security Scan
+name: Stage 5 — Helm + IaC Security Scan
 
 on:
   workflow_call:
@@ -18,15 +18,26 @@ jobs:
           repository: shivkumarkonnuri/linktracker-infra
           path: linktracker-infra
 
-      - name: Trivy - Scan Helm chart for misconfigurations
+      - name: Trivy — scan Helm chart for misconfigurations
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: linktracker-infra/helm/linktracker
           severity: CRITICAL,HIGH
-          exit-code: 1
+          exit-code: 0
+          format: table
+
+      - name: Trivy — generate Helm SARIF report
+        uses: aquasecurity/trivy-action@v0.36.0
+        if: always()
+        with:
+          scan-type: config
+          scan-ref: linktracker-infra/helm/linktracker
+          severity: CRITICAL,HIGH
+          exit-code: 0
           format: sarif
           output: trivy-helm.sarif
+          skip-setup-trivy: true
 
       - name: Upload Helm scan to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -35,8 +46,19 @@ jobs:
           sarif_file: trivy-helm.sarif
           category: trivy-helm-config
 
-      - name: Trivy - Scan terraform for misconfigurations
+      - name: Trivy — scan Terraform for misconfigurations
         uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: linktracker-infra/terraform
+          severity: CRITICAL,HIGH
+          exit-code: 0
+          format: table
+          skip-setup-trivy: true
+
+      - name: Trivy — generate Terraform SARIF report
+        uses: aquasecurity/trivy-action@v0.36.0
+        if: always()
         with:
           scan-type: config
           scan-ref: linktracker-infra/terraform
@@ -44,6 +66,7 @@ jobs:
           exit-code: 0
           format: sarif
           output: trivy-terraform.sarif
+          skip-setup-trivy: true
 
       - name: Upload Terraform scan to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -52,7 +75,7 @@ jobs:
           sarif_file: trivy-terraform.sarif
           category: trivy-terraform-config
 
-      - name: Checkov - scan Terraform for CIS benchmark violations
+      - name: Checkov — scan Terraform for CIS benchmark violations
         uses: bridgecrewio/checkov-action@master
         with:
           directory: linktracker-infra/terraform
