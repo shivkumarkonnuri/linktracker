@@ -28,7 +28,7 @@ jobs:
       - name: Checkout infra repo
         uses: actions/checkout@v4
         with: 
-          repository: shivkkumarkonnuri/linktracker-infra
+          repository: shivkumarkonnuri/linktracker-infra
           path: linktracker-infra
 
       - name: Authenticate to GCP via Workload Identity Federation
