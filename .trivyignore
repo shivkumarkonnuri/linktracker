@@ -1,0 +1,23 @@
+# OS-level CVEs with no fix available in Debian 13 (trixie) as of 2026-07-04
+# These are in the python:3.12-slim base image and cannot be fixed by updating
+# application dependencies. Acknowledged and tracked for future base image updates.
+
+# curl/libcurl — SMB connection reuse + cookie leak
+CVE-2026-5773
+CVE-2026-6276
+
+# gzip — LZH buffer overflow
+CVE-2026-41992
+
+# libacl1 — symlink traversal
+CVE-2026-54369
+
+# ncurses — buffer overflow
+CVE-2025-69720
+
+# perl-base — path traversal, heap overflow, DoS
+CVE-2026-42496
+CVE-2026-8376
+CVE-2026-42497
+CVE-2026-48962
+CVE-2026-9538
