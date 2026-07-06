@@ -57,7 +57,7 @@ jobs:
 
       - name: Deploy LinkTracker to GKE via Helm
         run: |
-          helm upgrade linktracker ./linktracker-infra/helm/linktracker \
+          helm upgrade --install linktracker ./linktracker-infra/helm/linktracker \
             -f ./linktracker-infra/helm/linktracker/values.yaml \
             -f ./linktracker-infra/helm/linktracker/values-prod.yaml \
             --namespace linktracker-prod \
