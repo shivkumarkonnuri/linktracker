@@ -61,6 +61,7 @@ jobs:
             -f ./linktracker-infra/helm/linktracker/values.yaml \
             -f ./linktracker-infra/helm/linktracker/values-prod.yaml \
             --namespace linktracker-prod \
+            --create-namespace \
             --wait \
             --timeout 10m
 
