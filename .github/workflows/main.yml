@@ -46,3 +46,11 @@ jobs:
     uses: ./.github/workflows/stage5-iac-scan.yml
     secrets: inherit
 
+
+  # ── Stage 6: Update Infra Repo (triggers ArgoCD) ─────────────
+  stage6-update-infra:
+    name: "Stage 6 — Update Infra Repo"
+    needs: stage5-iac-scan
+    uses: ./.github/workflows/stage6-update-infra.yml
+    secrets:
+      INFRA_REPO_PAT: ${{ secrets.INFRA_REPO_PAT }}
