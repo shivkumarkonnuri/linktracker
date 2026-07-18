@@ -25,3 +25,22 @@ CVE-2026-9538
 # perl-base — regex trie 16-bit overflow, fixed upstream in Perl 5.43.10,
 # not yet backported to Debian 13 (trixie) perl-base as of 2026-07-18
 CVE-2026-13221
+
+# util-linux family — integer overflow in libblkid partition parsing,
+# no fix available in Debian 13 (trixie) as of 2026-07-18
+CVE-2026-53615
+
+# curl/libcurl — multiple issues (SSH host verification, TLS config,
+# proxy auth state, mTLS reuse, use-after-free, SSL session disclosure),
+# no fix available in Debian 13 (trixie) as of 2026-07-18
+CVE-2026-12064
+CVE-2026-8286
+CVE-2026-8927
+CVE-2026-8932
+CVE-2026-9079
+CVE-2026-9080
+CVE-2026-9545
+
+# perl-base — integer overflow in S_measure_struct (pack/unpack),
+# no fix available in Debian 13 (trixie) as of 2026-07-18
+CVE-2026-57432
