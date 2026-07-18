@@ -1,4 +1,4 @@
-name: Main Pipeline — LinkTracker CI/CD + DevSecOps
+name: Main Pipeline — LinkTracker CI + DevSecOps
 
 on:
   push:
@@ -46,9 +46,3 @@ jobs:
     uses: ./.github/workflows/stage5-iac-scan.yml
     secrets: inherit
 
-  # ── Stage 6: Deploy to Prod (manual approval) ───────────────
-  stage6-deploy-prod:
-    name: "Stage 6 — Deploy to Production"
-    needs: stage5-iac-scan
-    uses: ./.github/workflows/stage6-deploy-prod.yml
-    secrets: inherit

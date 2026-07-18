@@ -1,7 +1,7 @@
 # LinkTracker
 
 A URL shortener + click analytics service.
-Built to practice end-to-end DevOps: Linux → Docker → Kubernetes (Kind + EKS) → CI/CD → GitOps → Observability.
+Built to practice end-to-end DevOps: Linux → Docker → Kubernetes (Kind + EKS) → CI → GitOps → Observability.
 
 ## Environments
 | Env | Where | How |
